@@ -5,15 +5,23 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
+//aka CHAIN GANG
+
 package org.usfirst.frc.team5176.robot;
 
+import org.usfirst.frc.team5176.robot.commands.ExampleCommand;
+import org.usfirst.frc.team5176.robot.subsystems.DriveTrain;
+import org.usfirst.frc.team5176.robot.subsystems.ExampleSubsystem;
+
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.usfirst.frc.team5176.robot.commands.ExampleCommand;
-import org.usfirst.frc.team5176.robot.subsystems.ExampleSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -25,21 +33,60 @@ import org.usfirst.frc.team5176.robot.subsystems.ExampleSubsystem;
 public class Robot extends TimedRobot {
 	public static final ExampleSubsystem kExampleSubsystem
 			= new ExampleSubsystem();
+	public static final double ACCELERATION = 0.3;
 	public static OI m_oi;
-
+	
+	public static DriveTrain driveTrain;
+	
+	public static boolean isAuto = false;
+	
+	public static PIDController driveForwardPid;
+	public static PIDController rotatePid;
+	public static PIDController armsPidLift;
+	
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
-
+	
+	//testing
+	public static double pot_min;
+	public static double pot_max;
+	public static double pot_val;
+	public static double[] pot_array;
+	
+	public static UsbCamera camera;
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
+		RobotMap.init();
 		m_oi = new OI();
 		m_chooser.addDefault("Default Auto", new ExampleCommand());
 		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", m_chooser);
+		
+		driveTrain = new DriveTrain();
+		driveForwardPid = new PIDController(.1, 0, 0, RobotMap.frontRightEncoder, RobotMap.literallyAllTheMotors);
+		driveForwardPid.setAbsoluteTolerance(50);
+		driveForwardPid.disable();
+		//rotatePid = new PIDController(1, 0, 0, RobotMap.rotatyBoi, );
+		
+		armsPidLift = new PIDController(.1, 0, 0, RobotMap.pot, RobotMap.armTiltMotor);
+		//armsPidLift.disable();
+		//setup stuff
+		pot_val = RobotMap.pot.get() * 100;
+		pot_min = pot_val;
+		pot_max = pot_val;
+		
+		pot_array = new double[10];
+		for(int x = 0; x < 10; x++)
+			pot_array[x] = pot_val;
+		
+		camera = CameraServer.getInstance().startAutomaticCapture(0);
+        camera.setResolution(720, 480);
+		
 	}
 
 	/**
@@ -49,7 +96,8 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void disabledInit() {
-
+		RobotMap.armSpinnyMotors.set(0);
+		driveForwardPid.disable();
 	}
 
 	@Override
@@ -71,7 +119,6 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		m_autonomousCommand = m_chooser.getSelected();
-
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector",
 		 * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
@@ -83,6 +130,13 @@ public class Robot extends TimedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.start();
 		}
+		isAuto = true;
+		RobotMap.frontRightEncoder.reset();
+		driveForwardPid.setOutputRange(-.3, .3);
+		driveForwardPid.setPID(.1, 0, 0);
+		driveForwardPid.setSetpoint(inchesToUnits(64));
+		driveForwardPid.setPercentTolerance(10);
+		driveForwardPid.enable();
 	}
 
 	/**
@@ -91,6 +145,14 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
+		SmartDashboard.putNumber("Encoder Value", RobotMap.frontRightEncoder.getDistance());
+		SmartDashboard.updateValues();
+		
+		
+		
+		//pid.setPID(.1, 0, 0);//;SmartDashboard.getNumber("penis", .1), SmartDashboard.getNumber("ienis", 0), SmartDashboard.getNumber("denis", 0));
+		//pid.setSetpoint(0);//SmartDashboard.getNumber("Setpoint", 0));
+		//Good job;
 	}
 
 	@Override
@@ -102,6 +164,12 @@ public class Robot extends TimedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
+		driveForwardPid.disable();
+		armsPidLift.setOutputRange(-.4, .4);
+		armsPidLift.setPID(1.6, 0, 0);//1.4
+		armsPidLift.setPercentTolerance(.05);
+		armsPidLift.setSetpoint(0);
+		armsPidLift.enable();
 	}
 
 	/**
@@ -110,6 +178,37 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
+		//DriverStation.reportWarning(RobotMap.frontRightEncoder.getDistance() + "", false);
+		//from test
+			RobotMap.armSpinnyMotors.set(-OI.coJoystick.getRawAxis(5));//right stick y axis
+			//RobotMap.armTiltMotor.set(OI.coJoystick.getRawAxis(1)/2);//left stick y axis
+			RobotMap.armOpenMotor.set(OI.coJoystick.getRawAxis(4)/2);//right stick x axis
+			if(OI.coJoystick.getRawButton(1)){
+				//RobotMap.testMota.set(.3);
+				armsPidLift.setSetpoint(0);
+			}
+			if(OI.coJoystick.getRawButton(4)){
+				//RobotMap.testMota.set(.3);
+				armsPidLift.setSetpoint(.25);
+			}
+	}
+	@Override
+	public void testInit(){//.7 down .3 up//.53 up .85 down
+		armsPidLift.setOutputRange(-.4, .4);
+		armsPidLift.setPID(2.2, 0, 0);//1.8
+		armsPidLift.setPercentTolerance(.05);
+		//armsPidLift.disable();
+		armsPidLift.setSetpoint(0);//.2//.25
+		//armsPidLift.setSetpoint(.65);
+		armsPidLift.enable();
+		/*
+		 * RobotMap.frontRightEncoder.reset();
+		driveForwardPid.setOutputRange(-.3, .3);
+		driveForwardPid.setPID(.1, 0, 0);
+		driveForwardPid.setSetpoint(inchesToUnits(64));
+		driveForwardPid.setPercentTolerance(10);
+		driveForwardPid.enable();
+		 */
 	}
 
 	/**
@@ -117,5 +216,53 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+		
+		RobotMap.armSpinnyMotors.set(OI.pilotJoystick.getRawAxis(5));//right stick y axis
+		//RobotMap.armTiltMotor.set(-OI.pilotJoystick.getRawAxis(1)/2);//left stick y axis
+		RobotMap.armOpenMotor.set(OI.pilotJoystick.getRawAxis(4)/2);//right stick x axis
+		
+		//RobotMap.climbyBoi.set(OI.pilotJoystick.getRawAxis(1));
+		/*
+		//store it current pot value, because logic would dictate that reading a value from memory is faster than calling a method (i hope)
+		pot_val = RobotMap.pot.get() * 100;//also *100 to put into percents
+		
+		//shift array and set first value to current value
+		for(int x = 0; x < 9; x++)
+			pot_array[x+1] = pot_array[x];
+		pot_array[0] = pot_val;
+		
+		//calculate average from last 10
+		
+		double sum = 0;
+		for(int x = 0; x < 10; x++)
+			sum += pot_array[x];
+		sum /= 10;
+		
+		
+		if(pot_val < pot_min)
+			pot_min = pot_val;
+		if(pot_val > pot_max)
+			pot_max = pot_val;
+		*/
+		//DriverStation.reportWarning(pot_min + " < " + pot_val + " < " + pot_max + "\n" + sum, false);
+		//DriverStation.reportWarning(sum + " calculated in:" + time, false);
+		//RobotMap.literallyAllTheMotorsButTheySpinThisTime.set(OI.pilotJoystick.getRawAxis(5)/2);
+		DriverStation.reportWarning("get: " + RobotMap.pot.get() + " pidget: " + RobotMap.pot.pidGet() + " setpoint: " + armsPidLift.getSetpoint() + " error: " + armsPidLift.getError() + " onTarget: " + armsPidLift.onTarget(), false);
+		
+		
+		if(OI.coJoystick.getRawButton(1)){
+			//RobotMap.testMota.set(.3);
+			armsPidLift.setSetpoint(0);
+		}
+		if(OI.coJoystick.getRawButton(4)){
+			//RobotMap.testMota.set(.3);
+			armsPidLift.setSetpoint(.25);
+		}
+	}
+	public boolean isInAutonomous() {
+		return isAutonomous();
+	}
+	public static double inchesToUnits(double inches){
+		return (inches * 673.68421052631578947368421052632) / 60;//100/9.5
 	}
 }
