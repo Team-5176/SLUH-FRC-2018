@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.interfaces.Potentiometer;
  */
 public class Arms extends Subsystem {
 
-    private final SpeedController leftSpinMotor = RobotMap.testMota2;
-    private final SpeedController rightSpinMotor = RobotMap.testMota1;
+    private final SpeedController leftSpinMotor = RobotMap.leftArmSpinny;
+    private final SpeedController rightSpinMotor = RobotMap.rightArmSpinny;
     
     private final SpeedController bothSpinnyBois = RobotMap.armSpinnyMotors;//use this
     private final SpeedController tiltArmMotor = RobotMap.armTiltMotor;

@@ -9,7 +9,9 @@
 
 package org.usfirst.frc.team5176.robot;
 
+import org.usfirst.frc.team5176.misc.ArmPositions;
 import org.usfirst.frc.team5176.robot.commands.ExampleCommand;
+import org.usfirst.frc.team5176.robot.commands.IdkDriveForwardAndThrowDatBoiIn;
 import org.usfirst.frc.team5176.robot.subsystems.DriveTrain;
 import org.usfirst.frc.team5176.robot.subsystems.ExampleSubsystem;
 
@@ -43,6 +45,7 @@ public class Robot extends TimedRobot {
 	public static PIDController driveForwardPid;
 	public static PIDController rotatePid;
 	public static PIDController armsPidLift;
+	 
 	
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -86,6 +89,8 @@ public class Robot extends TimedRobot {
 		
 		camera = CameraServer.getInstance().startAutomaticCapture(0);
         camera.setResolution(720, 480);
+        
+        //auto sauce
 		
 	}
 
@@ -118,7 +123,8 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autonomousCommand = m_chooser.getSelected();
+		//m_autonomousCommand = m_chooser.getSelected();//if i feel like it
+		m_autonomousCommand = new IdkDriveForwardAndThrowDatBoiIn(armsPidLift, driveForwardPid, 64);//TODO: PLEASE CHANGE THE DISTANCE OH JESUS
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector",
 		 * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
@@ -130,13 +136,19 @@ public class Robot extends TimedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.start();
 		}
-		isAuto = true;
+		/*
+		//drivey boi
 		RobotMap.frontRightEncoder.reset();
 		driveForwardPid.setOutputRange(-.3, .3);
 		driveForwardPid.setPID(.1, 0, 0);
 		driveForwardPid.setSetpoint(inchesToUnits(64));
 		driveForwardPid.setPercentTolerance(10);
 		driveForwardPid.enable();
+		
+		//army boi
+		armsPidLift.enable();
+		armsPidLift.setSetpoint(ArmPositions.UP.getVal());
+		*/
 	}
 
 	/**
@@ -165,6 +177,9 @@ public class Robot extends TimedRobot {
 			m_autonomousCommand.cancel();
 		}
 		driveForwardPid.disable();
+		
+		
+		//arms pid
 		armsPidLift.setOutputRange(-.4, .4);
 		armsPidLift.setPID(1.6, 0, 0);//1.4
 		armsPidLift.setPercentTolerance(.05);
@@ -178,37 +193,26 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
-		//DriverStation.reportWarning(RobotMap.frontRightEncoder.getDistance() + "", false);
-		//from test
-			RobotMap.armSpinnyMotors.set(-OI.coJoystick.getRawAxis(5));//right stick y axis
-			//RobotMap.armTiltMotor.set(OI.coJoystick.getRawAxis(1)/2);//left stick y axis
-			RobotMap.armOpenMotor.set(OI.coJoystick.getRawAxis(4)/2);//right stick x axis
-			if(OI.coJoystick.getRawButton(1)){
-				//RobotMap.testMota.set(.3);
-				armsPidLift.setSetpoint(0);
-			}
-			if(OI.coJoystick.getRawButton(4)){
-				//RobotMap.testMota.set(.3);
-				armsPidLift.setSetpoint(.25);
-			}
+		
+		//RobotMap.armSpinnyMotors.set(-OI.coJoystick.getRawAxis(5));//right stick y axis
+		RobotMap.leftArmSpinny.set(-OI.coJoystick.getRawAxis(1));
+		RobotMap.rightArmSpinny.set(-OI.coJoystick.getRawAxis(5));
+		
+		//arm up down bois
+		if(OI.coJoystick.getRawButton(1)){
+			armsPidLift.setSetpoint(ArmPositions.DOWN.getVal());
+		}
+		if(OI.coJoystick.getRawButton(4)){
+			armsPidLift.setSetpoint(ArmPositions.UP.getVal());
+		}
 	}
 	@Override
-	public void testInit(){//.7 down .3 up//.53 up .85 down
+	public void testInit(){//.7 down .3 up//.53 up .85 down//bro i dont even know anymore
 		armsPidLift.setOutputRange(-.4, .4);
 		armsPidLift.setPID(2.2, 0, 0);//1.8
 		armsPidLift.setPercentTolerance(.05);
-		//armsPidLift.disable();
-		armsPidLift.setSetpoint(0);//.2//.25
-		//armsPidLift.setSetpoint(.65);
+		armsPidLift.setSetpoint(ArmPositions.DOWN.getVal());//.2//.25
 		armsPidLift.enable();
-		/*
-		 * RobotMap.frontRightEncoder.reset();
-		driveForwardPid.setOutputRange(-.3, .3);
-		driveForwardPid.setPID(.1, 0, 0);
-		driveForwardPid.setSetpoint(inchesToUnits(64));
-		driveForwardPid.setPercentTolerance(10);
-		driveForwardPid.enable();
-		 */
 	}
 
 	/**

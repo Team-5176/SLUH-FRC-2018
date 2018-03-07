@@ -36,15 +36,15 @@ public class ArcadeDrive extends Command {
 		joyY = joystick.getRawAxis(1);
 		twist = joystick.getRawAxis(4) / 2.0;
 		
-		if(Math.abs(joyX) < 0.20) {
+		if(Math.abs(joyX) < 0.10) {
 	    	joyX = 0.0;
 		}
     	
-    	if(Math.abs(joyY) < 0.20) {
+    	if(Math.abs(joyY) < 0.10) {
 	    	joyY = 0.0;
     	}
     	
-    	if(Math.abs(twist) < 0.20) {
+    	if(Math.abs(twist) < 0.10) {
 	    	twist = 0.0;
     	}
     	

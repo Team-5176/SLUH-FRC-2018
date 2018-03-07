@@ -55,8 +55,8 @@ public class RobotMap {
 	public static MecanumDrive mecanumDrive;
 	
 	
-	public static TalonSRXFix testMota1;
-	public static TalonSRXFix testMota2;
+	public static TalonSRXFix rightArmSpinny;
+	public static TalonSRXFix leftArmSpinny;
 	public static SpeedControllerGroup armSpinnyMotors;
 	
 	public static Encoder frontRightEncoder;
@@ -92,11 +92,11 @@ public class RobotMap {
 		
 		mecanumDrive = new MecanumDrive(frontLeftDank, backLeftDank, frontRightDank, backRightDank);
 		
-		testMota1 = new TalonSRXFix(1);//right arm spinny
-		testMota2 = new TalonSRXFix(6);//left arm spinny
-		testMota2.setInverted(true);
+		rightArmSpinny = new TalonSRXFix(1);//right arm spinny
+		leftArmSpinny = new TalonSRXFix(6);//left arm spinny
+		leftArmSpinny.setInverted(true);
 		
-		armSpinnyMotors = new SpeedControllerGroup(testMota1, testMota2);
+		armSpinnyMotors = new SpeedControllerGroup(rightArmSpinny, leftArmSpinny);
 		
 		frontRightEncoder = new Encoder(0, 1);
 		//rotatyBoi = new BNO055Fix(Port.kOnboard, (byte) 0x28, AxisIGuess.x);
