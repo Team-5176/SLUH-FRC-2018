@@ -177,7 +177,7 @@ public class Robot extends TimedRobot {
 			m_autonomousCommand.cancel();
 		}
 		driveForwardPid.disable();
-		
+		IdkDriveForwardAndThrowDatBoiIn.shouldDo = false;
 		
 		//arms pid
 		armsPidLift.setOutputRange(-.4, .4);
@@ -195,8 +195,24 @@ public class Robot extends TimedRobot {
 		Scheduler.getInstance().run();
 		
 		//RobotMap.armSpinnyMotors.set(-OI.coJoystick.getRawAxis(5));//right stick y axis
-		RobotMap.leftArmSpinny.set(-OI.coJoystick.getRawAxis(1));
-		RobotMap.rightArmSpinny.set(-OI.coJoystick.getRawAxis(5));
+		//RobotMap.leftArmSpinny.set(-OI.coJoystick.getRawAxis(1));
+		//RobotMap.rightArmSpinny.set(-OI.coJoystick.getRawAxis(5));
+		double spinnyVal = 0;
+		if(OI.coJoystick.getRawAxis(3) > .5) {
+			//RobotMap.armSpinnyMotors.set(-.5);
+			spinnyVal = -.5;
+		}
+		if(OI.coJoystick.getRawButton(6)){
+			//RobotMap.armSpinnyMotors.set(1);
+			spinnyVal = 1;
+		}
+		if(OI.coJoystick.getRawAxis(3) < .5 && !OI.coJoystick.getRawButton(6)) {
+			
+			spinnyVal = 0;
+		}
+		RobotMap.armSpinnyMotors.set(spinnyVal);
+		
+		
 		
 		//arm up down bois
 		if(OI.coJoystick.getRawButton(1)){
@@ -205,6 +221,7 @@ public class Robot extends TimedRobot {
 		if(OI.coJoystick.getRawButton(4)){
 			armsPidLift.setSetpoint(ArmPositions.UP.getVal());
 		}
+		
 	}
 	@Override
 	public void testInit(){//.7 down .3 up//.53 up .85 down//bro i dont even know anymore
@@ -221,9 +238,9 @@ public class Robot extends TimedRobot {
 	@Override
 	public void testPeriodic() {
 		
-		RobotMap.armSpinnyMotors.set(OI.pilotJoystick.getRawAxis(5));//right stick y axis
+		//RobotMap.armSpinnyMotors.set(OI.pilotJoystick.getRawAxis(5));//right stick y axis
 		//RobotMap.armTiltMotor.set(-OI.pilotJoystick.getRawAxis(1)/2);//left stick y axis
-		RobotMap.armOpenMotor.set(OI.pilotJoystick.getRawAxis(4)/2);//right stick x axis
+		//RobotMap.armOpenMotor.set(OI.pilotJoystick.getRawAxis(4)/2);//right stick x axis
 		
 		//RobotMap.climbyBoi.set(OI.pilotJoystick.getRawAxis(1));
 		/*
@@ -251,9 +268,9 @@ public class Robot extends TimedRobot {
 		//DriverStation.reportWarning(pot_min + " < " + pot_val + " < " + pot_max + "\n" + sum, false);
 		//DriverStation.reportWarning(sum + " calculated in:" + time, false);
 		//RobotMap.literallyAllTheMotorsButTheySpinThisTime.set(OI.pilotJoystick.getRawAxis(5)/2);
-		DriverStation.reportWarning("get: " + RobotMap.pot.get() + " pidget: " + RobotMap.pot.pidGet() + " setpoint: " + armsPidLift.getSetpoint() + " error: " + armsPidLift.getError() + " onTarget: " + armsPidLift.onTarget(), false);
+		//DriverStation.reportWarning("get: " + RobotMap.pot.get() + " pidget: " + RobotMap.pot.pidGet() + " setpoint: " + armsPidLift.getSetpoint() + " error: " + armsPidLift.getError() + " onTarget: " + armsPidLift.onTarget(), false);
 		
-		
+		/*
 		if(OI.coJoystick.getRawButton(1)){
 			//RobotMap.testMota.set(.3);
 			armsPidLift.setSetpoint(0);
@@ -262,6 +279,8 @@ public class Robot extends TimedRobot {
 			//RobotMap.testMota.set(.3);
 			armsPidLift.setSetpoint(.25);
 		}
+		*/
+		//DriverStation.reportWarning(, printTrace);
 	}
 	public boolean isInAutonomous() {
 		return isAutonomous();

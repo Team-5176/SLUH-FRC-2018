@@ -16,10 +16,11 @@ public class IdkDriveForwardAndThrowDatBoiIn extends Command {
     PIDController armPidBoi;
     PIDController drivePidBoi;
     double driveDistance;
-	public IdkDriveForwardAndThrowDatBoiIn(PIDController armLiftyDude, PIDController driveyBoi, double driveDist) {
+	public static boolean shouldDo = false;
+    public IdkDriveForwardAndThrowDatBoiIn(PIDController armLiftyDude, PIDController driveyBoi, double driveDist) {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
-    	armPidBoi = armLiftyDude;
+		armPidBoi = armLiftyDude;
     	drivePidBoi = driveyBoi;
     	driveDistance = driveDist;
     }
@@ -38,11 +39,16 @@ public class IdkDriveForwardAndThrowDatBoiIn extends Command {
 		armPidBoi.enable();
 		armPidBoi.setSetpoint(ArmPositions.UP.getVal());
 		
+		shouldDo = true;
+		
 		//wait a couple secs the spinny bois
 		new Thread(()->{
-			try{Thread.sleep(5000);}catch(Exception e){}
-			RobotMap.armSpinnyMotors.set(1);
-			try{Thread.sleep(2000);}catch(Exception e){}
+			if(shouldDo)
+				try{Thread.sleep(5000);}catch(Exception e){}
+			if(shouldDo)
+				RobotMap.armSpinnyMotors.set(1);
+			if(shouldDo)
+				try{Thread.sleep(2000);}catch(Exception e){}
 			RobotMap.armSpinnyMotors.set(0);
 		}).start();
     }
