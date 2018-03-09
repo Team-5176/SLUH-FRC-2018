@@ -32,6 +32,7 @@ public class ArcadeDrive extends Command {
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {//legit just copied chris's code from 2017
     	//DriverStation.reportWarning("we are here", false);
+    	if(DriverStation.getInstance().isOperatorControl()){
     	joyX = joystick.getRawAxis(0);
 		joyY = joystick.getRawAxis(1);
 		twist = joystick.getRawAxis(4) / 2.0;
@@ -53,6 +54,7 @@ public class ArcadeDrive extends Command {
     	lastTwist = lastTwist + Robot.ACCELERATION * (twist * 0.75 - lastTwist);
     	
     	Robot.driveTrain.dankMemes(lastX, lastY, lastTwist);
+    	}
     }
 
     // Make this return true when this Command no longer needs to run execute()

@@ -35,6 +35,7 @@ public class IdkDriveForwardAndThrowDatBoiIn extends Command {
 		drivePidBoi.setPercentTolerance(10);
 		drivePidBoi.enable();
 		
+		/*
 		//army boi
 		armPidBoi.enable();
 		armPidBoi.setSetpoint(ArmPositions.UP.getVal());
@@ -51,6 +52,7 @@ public class IdkDriveForwardAndThrowDatBoiIn extends Command {
 				try{Thread.sleep(2000);}catch(Exception e){}
 			RobotMap.armSpinnyMotors.set(0);
 		}).start();
+		*/
     }
 
     // Called repeatedly when this Command is scheduled to run

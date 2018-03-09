@@ -71,19 +71,29 @@ public class RobotMap {
 	public static SpeedControllerGroup literallyAllTheRightMotors;
 	public static SpeedControllerGroup literallyAllTheMotorsButTheySpinThisTime;
 	
+	public static TalonSRXFix climbyBoii;
+	
 	public static void init()
 	{
-		frontLeftDank = new TalonSRXFix(5);//
-		frontRightDank = new TalonSRXFix(3);//
-		backLeftDank = new TalonSRXFix(2);//
-		backRightDank = new TalonSRXFix(4);//
+		frontLeftDank = new TalonSRXFix(5);//5
+		frontRightDank = new TalonSRXFix(3);//3
+		backLeftDank = new TalonSRXFix(2);//2//
+		backRightDank = new TalonSRXFix(4);//4//
 		
 		armTiltMotor = new VictorSP(0);
 		armOpenMotor = new VictorSP(1);
 		climbyBoi = new VictorSP(2);
 		backRightVictor = new VictorSP(3);
 		
+		//volitile
+		//frontRightDank.setInverted(true);
+		//backRightDank.setInverted(true);
+		
+		
+		
 		armTiltMotor.setInverted(true);
+		
+		//climbyBoii = new TalonSRXFix(8);//
 		
 		//frontLeftMotor = new SpeedControllerGroup((SpeedController)frontLeftDank, (SpeedController)frontLeftVictor);
 		//frontRightMotor = new SpeedControllerGroup((SpeedController)frontRightDank, (SpeedController)frontRightVictor);
@@ -93,7 +103,7 @@ public class RobotMap {
 		mecanumDrive = new MecanumDrive(frontLeftDank, backLeftDank, frontRightDank, backRightDank);
 		
 		rightArmSpinny = new TalonSRXFix(1);//right arm spinny
-		leftArmSpinny = new TalonSRXFix(6);//left arm spinny
+		leftArmSpinny = new TalonSRXFix(6);//left arm spinny//
 		leftArmSpinny.setInverted(true);
 		
 		armSpinnyMotors = new SpeedControllerGroup(rightArmSpinny, leftArmSpinny);

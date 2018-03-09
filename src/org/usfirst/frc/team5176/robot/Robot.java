@@ -45,7 +45,6 @@ public class Robot extends TimedRobot {
 	public static PIDController driveForwardPid;
 	public static PIDController rotatePid;
 	public static PIDController armsPidLift;
-	 
 	
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -57,6 +56,8 @@ public class Robot extends TimedRobot {
 	public static double[] pot_array;
 	
 	public static UsbCamera camera;
+	
+	public double spinnyVal = 0;
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -71,7 +72,13 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData("Auto mode", m_chooser);
 		
 		driveTrain = new DriveTrain();
-		driveForwardPid = new PIDController(.1, 0, 0, RobotMap.frontRightEncoder, RobotMap.literallyAllTheMotors);
+		driveForwardPid = new PIDController(.1, 0, 0, RobotMap.frontRightEncoder, (value) -> {
+			RobotMap.frontLeftDank.set(value);
+			RobotMap.frontRightDank.set(-value);
+			RobotMap.backLeftDank.set(value);
+			RobotMap.backRightDank.set(-value);
+		});
+		//RobotMap.literallyAllTheMotors);
 		driveForwardPid.setAbsoluteTolerance(50);
 		driveForwardPid.disable();
 		//rotatePid = new PIDController(1, 0, 0, RobotMap.rotatyBoi, );
@@ -124,7 +131,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		//m_autonomousCommand = m_chooser.getSelected();//if i feel like it
-		m_autonomousCommand = new IdkDriveForwardAndThrowDatBoiIn(armsPidLift, driveForwardPid, 64);//TODO: PLEASE CHANGE THE DISTANCE OH JESUS
+		//m_autonomousCommand = new IdkDriveForwardAndThrowDatBoiIn(armsPidLift, driveForwardPid, 140);//TODO: PLEASE CHANGE THE DISTANCE OH JESUS
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector",
 		 * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
@@ -134,21 +141,21 @@ public class Robot extends TimedRobot {
 
 		// schedule the autonomous command (example)
 		if (m_autonomousCommand != null) {
-			m_autonomousCommand.start();
+			//m_autonomousCommand.start();
 		}
-		/*
+		
 		//drivey boi
 		RobotMap.frontRightEncoder.reset();
 		driveForwardPid.setOutputRange(-.3, .3);
 		driveForwardPid.setPID(.1, 0, 0);
-		driveForwardPid.setSetpoint(inchesToUnits(64));
+		driveForwardPid.setSetpoint(inchesToUnits(156));
 		driveForwardPid.setPercentTolerance(10);
 		driveForwardPid.enable();
 		
 		//army boi
 		armsPidLift.enable();
-		armsPidLift.setSetpoint(ArmPositions.UP.getVal());
-		*/
+		//armsPidLift.setSetpoint(ArmPositions.UP.getVal());
+		
 	}
 
 	/**
@@ -177,11 +184,11 @@ public class Robot extends TimedRobot {
 			m_autonomousCommand.cancel();
 		}
 		driveForwardPid.disable();
-		IdkDriveForwardAndThrowDatBoiIn.shouldDo = false;
+		//IdkDriveForwardAndThrowDatBoiIn.shouldDo = false;
 		
 		//arms pid
-		armsPidLift.setOutputRange(-.4, .4);
-		armsPidLift.setPID(1.6, 0, 0);//1.4
+		armsPidLift.setOutputRange(-.6, .6);
+		armsPidLift.setPID(2.4, 0, 0);//1.6
 		armsPidLift.setPercentTolerance(.05);
 		armsPidLift.setSetpoint(0);
 		armsPidLift.enable();
@@ -194,10 +201,14 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 		
+		//DriverStation.reportWarning("TiltyBoi:" + RobotMap.armTiltMotor.get() + "get: " + RobotMap.pot.get() + " setpoint: " + armsPidLift.getSetpoint() + " error: " + armsPidLift.getError() + " onTarget: " + armsPidLift.onTarget(), false);
+		//if(SmartDashboard.getBoolean("setPID", false))
+			//armsPidLift.setPID(SmartDashboard.getNumber("kp", 1.6), SmartDashboard.getNumber("ki", 0), SmartDashboard.getNumber("kd", 0));
+		
 		//RobotMap.armSpinnyMotors.set(-OI.coJoystick.getRawAxis(5));//right stick y axis
 		//RobotMap.leftArmSpinny.set(-OI.coJoystick.getRawAxis(1));
 		//RobotMap.rightArmSpinny.set(-OI.coJoystick.getRawAxis(5));
-		double spinnyVal = 0;
+		spinnyVal = 0;
 		if(OI.coJoystick.getRawAxis(3) > .5) {
 			//RobotMap.armSpinnyMotors.set(-.5);
 			spinnyVal = -.5;
@@ -212,6 +223,7 @@ public class Robot extends TimedRobot {
 		}
 		RobotMap.armSpinnyMotors.set(spinnyVal);
 		
+		//DriverStation.reportWarning("TiltyBoi:" + RobotMap.armTiltMotor.get(), false);
 		
 		
 		//arm up down bois
@@ -238,6 +250,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void testPeriodic() {
 		
+		RobotMap.literallyAllTheMotors.set(OI.coJoystick.getRawAxis(1));
 		//RobotMap.armSpinnyMotors.set(OI.pilotJoystick.getRawAxis(5));//right stick y axis
 		//RobotMap.armTiltMotor.set(-OI.pilotJoystick.getRawAxis(1)/2);//left stick y axis
 		//RobotMap.armOpenMotor.set(OI.pilotJoystick.getRawAxis(4)/2);//right stick x axis
@@ -281,6 +294,13 @@ public class Robot extends TimedRobot {
 		}
 		*/
 		//DriverStation.reportWarning(, printTrace);
+		/*
+		RobotMap.climbyBoi.set(OI.coJoystick.getRawAxis(5));
+		if(OI.coJoystick.getRawButton(5))
+			RobotMap.climbyBoii.set(-1);
+		else
+			RobotMap.climbyBoii.set(0);
+		*/
 	}
 	public boolean isInAutonomous() {
 		return isAutonomous();
