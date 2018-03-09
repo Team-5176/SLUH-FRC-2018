@@ -19,6 +19,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -46,6 +47,11 @@ public class Robot extends TimedRobot {
 	public static PIDController rotatePid;
 	public static PIDController armsPidLift;
 	
+	//new auto $auce
+	public static PIDController leftDriveyBoi;
+	public static PIDController rightDriveyBoi;
+	
+	
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
 	
@@ -58,6 +64,8 @@ public class Robot extends TimedRobot {
 	public static UsbCamera camera;
 	
 	public double spinnyVal = 0;
+	
+	public boolean autoBrahQuestionMark = true;
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -97,8 +105,16 @@ public class Robot extends TimedRobot {
 		camera = CameraServer.getInstance().startAutomaticCapture(0);
         camera.setResolution(720, 480);
         
-        //auto sauce
-		
+        //new auto $auce
+        /*
+		leftDriveyBoi = new PIDController(.1, 0, 0, null, (value) ->{
+			
+		});
+		rightDriveyBoi = new PIDController(.1, 0, 0, null, (value)->{
+			
+		});
+		*/
+        SmartDashboard.putBoolean("autoBrah?", true);
 	}
 
 	/**
@@ -138,24 +154,27 @@ public class Robot extends TimedRobot {
 		 * = new MyAutoCommand(); break; case "Default Auto": default:
 		 * autonomousCommand = new ExampleCommand(); break; }
 		 */
+		
+		autoBrahQuestionMark = SmartDashboard.getBoolean("autoBrah?", true);
 
 		// schedule the autonomous command (example)
 		if (m_autonomousCommand != null) {
 			//m_autonomousCommand.start();
 		}
 		
-		//drivey boi
-		RobotMap.frontRightEncoder.reset();
-		driveForwardPid.setOutputRange(-.3, .3);
-		driveForwardPid.setPID(.1, 0, 0);
-		driveForwardPid.setSetpoint(inchesToUnits(156));
-		driveForwardPid.setPercentTolerance(10);
-		driveForwardPid.enable();
-		
-		//army boi
-		armsPidLift.enable();
-		//armsPidLift.setSetpoint(ArmPositions.UP.getVal());
-		
+		if(autoBrahQuestionMark){
+			//drivey boi
+			RobotMap.frontRightEncoder.reset();
+			driveForwardPid.setOutputRange(-.3, .3);
+			driveForwardPid.setPID(.1, 0, 0);
+			driveForwardPid.setSetpoint(inchesToUnits(156));
+			driveForwardPid.setPercentTolerance(10);
+			driveForwardPid.enable();
+			
+			//army boi
+			armsPidLift.enable();
+			//armsPidLift.setSetpoint(ArmPositions.UP.getVal());
+		}
 	}
 
 	/**
